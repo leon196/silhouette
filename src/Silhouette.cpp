@@ -9,10 +9,11 @@ void Silhouette::setup(){
     // SHADERS
     silhouette.load("shaders/silhouette.vert", "shaders/silhouette.frag");
     shashader.load("shaders/shashader.vert", "shaders/shashader.frag");
+    shadow.load("shaders/shadow.vert", "shaders/shadow.frag");
 
     // SCENE
     plane.set(ofGetWidth(), ofGetHeight());
-    box.set(100);
+    box.set(200);
     texture.loadImage("awesome.png");
 
 	ofEnableAlphaBlending();
@@ -46,22 +47,48 @@ void Silhouette::draw(){
 	glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
     glRotatef(modelAngle.x, 0, 1, 0);
     glRotatef(modelAngle.y, 1, 0, 0);
+    plane.draw();
+
+    glRotatef(cos(ofGetElapsedTimef() * 0.05) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
+	box.draw();
+	glTranslatef(ofGetWidth() / 4 * cos(ofGetElapsedTimef()),0,0);
+    glRotatef(cos(ofGetElapsedTimef() * 0.2) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
+	box.draw();
+
+	fbo.end();
 
     // Shader
+	glPushMatrix();
     shashader.begin();
     shashader.setUniform1f("timeElapsed", ofGetElapsedTimef());
     shashader.setUniformTexture("texture", texture.getTextureReference(), 0);
-    plane.draw();
+	glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
+    glRotatef(modelAngle.x, 0, 1, 0);
+    glRotatef(modelAngle.y, 1, 0, 0);
     glRotatef(cos(ofGetElapsedTimef() * 0.05) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
 	box.draw();
 	glTranslatef(ofGetWidth() / 4 * cos(ofGetElapsedTimef()),0,0);
     glRotatef(cos(ofGetElapsedTimef() * 0.2) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
 	box.draw();
 	shashader.end();
+    glPopMatrix();
 
-	fbo.end();
+	// Plane ground
+	glPushMatrix();
+	glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
+    glRotatef(modelAngle.x, 0, 1, 0);
+    glRotatef(modelAngle.y, 1, 0, 0);
+    ofEnableDepthTest();
+    ofEnableLighting();
+    shadow.begin();
+    shadow.setUniform1f("timeElapsed", ofGetElapsedTimef());
+	shadow.setUniformTexture("fboTexture", fbo.getTextureReference(0), 0);
+    plane.draw();
+    shadow.end();
+    glPopMatrix();
 
 	// Plane Render
+	glPushMatrix();
     ofDisableDepthTest();
     ofDisableLighting();
 	glTranslatef(ofGetWidth()/2,ofGetHeight()/2,0);
@@ -70,6 +97,8 @@ void Silhouette::draw(){
     silhouette.setUniformTexture("depthTexture", fbo.getDepthTexture(), 1);
     plane.draw();
 	silhouette.end();
+    glPopMatrix();
+
 }
 
 //--------------------------------------------------------------
@@ -77,6 +106,7 @@ void Silhouette::keyPressed(int key){
 	if( key == OF_KEY_ESC ){
         shashader.unload();
         silhouette.unload();
+        shadow.unload();
 	}
 }
 

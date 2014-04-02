@@ -40,6 +40,6 @@ void main() {
 	// float col = tex.r + tex.g + tex.b;
 	float osc = (cos(timeValX) + 1.0) * 0.5;
 	//float a = step(1.0 - (tex.r + tex.g + tex.b) / 3.0, 0.001);
-	gl_FragColor = tex + vec4(edges.r, 0.0, 0.0, edges.a);
+	gl_FragColor = vec4(0.0, edges.r, 0.0, edges.r);
 	// gl_FragColor = vec4(texCoord.y / 600.0, 0.0, 0.0, 1.0);
 }

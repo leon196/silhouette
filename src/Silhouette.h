@@ -8,6 +8,7 @@ class Silhouette : public ofBaseApp{
         ofFbo fbo;
 		ofShader silhouette;
 		ofShader shashader;
+		ofShader shadow;
 
         ofPlanePrimitive plane;
         ofBoxPrimitive box;
