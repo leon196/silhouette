@@ -51,7 +51,11 @@ void Silhouette::draw(){
     shashader.begin();
     shashader.setUniform1f("timeElapsed", ofGetElapsedTimef());
     shashader.setUniformTexture("texture", texture.getTextureReference(), 0);
+    plane.draw();
     glRotatef(cos(ofGetElapsedTimef() * 0.05) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
+	box.draw();
+	glTranslatef(ofGetWidth() / 4 * cos(ofGetElapsedTimef()),0,0);
+    glRotatef(cos(ofGetElapsedTimef() * 0.2) * 360.0, cos(ofGetElapsedTimef()), sin(ofGetElapsedTimef()), 0);
 	box.draw();
 	shashader.end();
 

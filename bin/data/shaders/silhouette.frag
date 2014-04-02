@@ -6,25 +6,17 @@ uniform sampler2DRect fboTexture;
 uniform sampler2DRect depthTexture;
 uniform float timeValX;
 
+
 ////////////////////// KERNEL FILTERING ////////////////
-#define SIZE 7
 vec4 image_processing(vec2 decalCoords, sampler2DRect decal)
 {
-	int filter[SIZE *SIZE] =  int[](
-		  -1, -1, -1,-1, -1, -1, -1,
-		  -1, -1, -1,-1, -1, -1, -1,
-		  -1, -1, -1,-1, -1, -1, -1,
-		 -1,-1,-1,24,-1,-1,-1,
-		  -1, -1, -1,-1, -1, -1, -1,
-		  -1, -1, -1,-1, -1, -1, -1,
-		  -1, -1, -1,-1, -1, -1, -1
-		);
+	int filter[9] =  int[](0,   -1,   0, -1,   4,   -1,  0,   -1,   0);
 	vec4 color = vec4(0);
 
-	for (int i=0;i<SIZE;i++){
-		for (int j=0;j<SIZE;j++) {
+	for (int i=0;i<3;i++){
+		for (int j=0;j<3;j++) {
 			vec4 tex = texture2DRect(decal, decalCoords + vec2(i-1,j-1));;
-			color += filter[i+j*SIZE] * step(1.0 - (tex.r + tex.g + tex.b) / 3.0, 0.001);
+			color += filter[i+j*3] * step(1.0 - (tex.r + tex.g + tex.b) / 3.0, 0.001);
 		}								
 	}
 
@@ -44,10 +36,10 @@ void main() {
 	// gl_FragColor = vFragColor;
 	vec4 tex = texture2DRect(fboTexture, texCoord);
 	vec4 texDepth = texture2DRect(depthTexture, texCoord);
-	//vec4 edges = image_processing(texCoord, depthTexture);
+	vec4 edges = image_processing(texCoord, depthTexture);
 	// float col = tex.r + tex.g + tex.b;
 	float osc = (cos(timeValX) + 1.0) * 0.5;
 	//float a = step(1.0 - (tex.r + tex.g + tex.b) / 3.0, 0.001);
-	gl_FragColor = tex;// + vec4(edges.r, 0.0, 0.0, 1.0);
+	gl_FragColor = tex + vec4(edges.r, 0.0, 0.0, edges.a);
 	// gl_FragColor = vec4(texCoord.y / 600.0, 0.0, 0.0, 1.0);
 }
